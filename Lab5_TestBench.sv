@@ -11,7 +11,7 @@ timeprecision 1ns;
 
 //DECLARE ALL VARIABLES
 logic Clk = 0;
-logic Reset, Run, ClearA_LoadB;
+logic Reset, Run, ClearA_LoadB, X;
 logic [7:0] S, Aval, Bval;
 logic [6:0] AhexL,
 				AhexU,
@@ -22,6 +22,9 @@ logic [6:0] AhexL,
 logic [7:0] ans_A, ans_B;
 logic			ans_X;
 
+// Instantiating the DUT
+// Make sure the module and signal names match with those in your design
+Multiplier multiplier0(.*);	
 
 //Toggle clock
 //#1 means wait for a delay of 1 timeunit
