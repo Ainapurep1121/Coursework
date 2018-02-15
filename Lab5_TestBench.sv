@@ -51,13 +51,13 @@ ans_B = 8'hFE;
 ans_X = 1'b1;
 
 //Actual Simulation Test
-ClearA_LoadB 	= 0;    	 // Set to 0, before toggling
-S 				= 8'hC5;	 // Hex -59 = 1100 0101 -< Check
-ClearA_LoadB 	= 1;	    //Toggle ClrA_LdB
-ClearA_LoadB 	= 0;       
-S 				= 8'h07;  //Hex 07 = 0000 0111 -< check 
-Run 			= 1;
-Run 			= 0;
+#2 ClearA_LoadB 	= 0;    	 // Set to 0, before toggling
+#2 S 				= 8'hC5;	 // Hex -59 = 1100 0101 -< Check
+#2 ClearA_LoadB 	= 1;	    //Toggle ClrA_LdB
+#2 ClearA_LoadB 	= 0;       
+#2 S 				= 8'h07;  //Hex 07 = 0000 0111 -< check 
+#5 Run 			= 1;
+#5 Run 			= 0;
 
 //Store Results to check if computation worked. 
 //This chunk can be moved around!
@@ -65,34 +65,34 @@ Run 			= 0;
 //Bval = blah 
 
 //Repeat Calculation Check
-#2 S 				= 9'h02;
-   Run 			= 1;
-#2	Run			= 0;
+#5 S 				= 9'h02;
+#5 Run 			= 1;
+#5	Run			= 0;
 
 //Flipped operands Czech
 #5 Reset 	= 1;
-	Reset 	= 0;
-	S 			= 8'hC5;
-	ClearA_LoadB = 1;
-	ClearA_LoadB = 0;
-	S 			= 8'h07;
+#5	Reset 	= 0;
+#5	S 			= 8'hC5;
+#5	ClearA_LoadB = 1;
+#5	ClearA_LoadB = 0;
+#5	S 			= 8'h07;
 #2 Run 		= 1;
 #2 Run 		= 0;
 
 
 //Check if the compuation units worked as expected
 
-#22 if(Aval != ans_A)
-			ErrorCnt++;
-	 if(Bval != ans_B)
-			ErrorCnt++;
-	 if(X != ans_X)
-			ErrorCnt++;
-	 
-if(ErrorCnt == 0)
-	$display("Success!"); 
-else
-	$display("%d error(s) detected.", ErrorCnt);
+//#22 if(Aval != ans_A)
+//			ErrorCnt++;
+//	 if(Bval != ans_B)
+//			ErrorCnt++;
+//	 if(X != ans_X)
+//			ErrorCnt++;
+//	 
+//if(ErrorCnt == 0)
+//	$display("Success!"); 
+//else
+//	$display("%d error(s) detected.", ErrorCnt);
 
 end
 endmodule

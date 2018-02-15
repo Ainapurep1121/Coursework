@@ -39,6 +39,7 @@ module Multiplier
 							.M(Sub),
 							.AxS(Aout),
 							.X(Xout));
+							
 	reg_8					register_unitA  ( 		// come back to these imputs
 							.Clk(Clk), 
 							.Reset(Reset), 
@@ -46,6 +47,7 @@ module Multiplier
 							.Load(ClearA_LoadB), 
 							.Shift_En(Shift),
 							.D(S));
+							
 	reg_8					register_unitB  (
 							.Clk(Clk), 
 							.Reset(Reset), 
@@ -53,7 +55,13 @@ module Multiplier
 							.Load(ClearA_LoadB), 
 							.Shift_En(Shift),
 							.D(S));
+							
 	control_logic		control_unit (
+							.Clk(Clk),
+							.Reset(Reset),
+							.LoadB(LoadB),
+							.LoadA(LoadA),
+							.Run(Run),
 							.Add(Add),
 							.Sub(Sub),
 							.Shift(Shift),
@@ -72,7 +80,7 @@ module Multiplier
 				B <= 8'h000;
             X <= 1'b0;
         end else if (!ClearA_LoadB) begin
-            // if reset is pressed, clear the adder's input registers
+            // if ClearA_LoadB is pressed, clear the adder's input registers
             A <= 8'h000;
             B <= S;
             X <= 1'b0;
@@ -80,8 +88,8 @@ module Multiplier
 				A <= Aout[7:0]; 
 				X <= Xout;
 		  end else if (Shift) begin
-				B = B	>> 1;
-				B[7] = A[0];
+				B = B	>> 1;	//Step 2?
+				B[7] = A[0]; //Step 1? 
 				A = A >>> 1;
 				A[7] = X;
 				Aval = A;

@@ -29,7 +29,6 @@ module control_logic (input  logic Clk, Reset, LoadA, LoadB, Run, //change
 		  next_state  = curr_state;	//required because I haven't enumerated all possibilities below
         unique case (curr_state) 
 
-				
 				Start: if (Run)
                        next_state = ClearA;
 				ClearA: begin  
@@ -38,68 +37,86 @@ module control_logic (input  logic Clk, Reset, LoadA, LoadB, Run, //change
 						  end
 				Add1: begin 
 							  next_state = Shift1;
+							  Clr_A = 0;
 							  Add = 1;
 						end
 				Shift1: begin    
 							  next_state = Add2;
 							  Shift = 1;
+							  Add = 0;
 						  end  
 				Add2: begin
 							  next_state = Shift2;
+							  Shift = 0;
 							  Add = 1;
 						end
 				Shift2: begin    
 							  next_state = Add3;
 							  Shift = 1;
+							  Add = 0;
 						  end  
 				Add3: begin
 							  next_state = Shift3;
+							  Shift = 0;
 							  Add = 1;
 						end
 				Shift3: begin    
 							  next_state = Add4;
 							  Shift = 1;
+							  Add = 0;
 						  end  
 				Add4: begin
 							  next_state = Shift4;
+							  Shift = 0;
 							  Add = 1;
 						end
 				Shift4: begin    
 							  next_state = Add5;
 							  Shift = 1;
+							  Add = 0;
 						  end  
 				Add5: begin
 							  next_state = Shift5;
+							  Shift = 0;
 							  Add = 1;
 						end
 				Shift5: begin    
 							  next_state = Add6;
 							  Shift = 1;
+							  Add = 0;
 						  end  
 				Add6: begin
 							  next_state = Shift6;
+							  Shift = 0;
 							  Add = 1;
 						end
 				Shift6: begin    
 							  next_state = Add7;
 							  Shift = 1;
+							  Add = 0;
 						  end  
 				Add7: begin
 							  next_state = Shift7;
+							  Shift = 0;
 							  Add = 1;
 						end
 				Shift7: begin    
 							  next_state = Sub8;
 							  Shift = 1;
+							  Sub = 0;
+							  Add = 0;
 						  end  
 				Sub8: begin
 							  next_state = Shift8;
-							  Add = 1;
+							  Shift = 0;
 							  Sub = 1;
+							  Add = 1;
 						end
 				Shift8: begin    
 							  next_state = Done;
 							  Shift = 1;
+							  Sub = 0;
+							  Add = 0;
 						  end  
 				Done:      if (~Run) 
                        next_state = Start;
@@ -107,4 +124,7 @@ module control_logic (input  logic Clk, Reset, LoadA, LoadB, Run, //change
         endcase
     end
 
+//	 assign Add = (curr_state == Add1);
+//	 assign Shift = (curr_state == Shift1);
+//	 assign Clr_A	= (curr_state == ClearA);
 endmodule

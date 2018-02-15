@@ -116,8 +116,16 @@ set_location_assignment PIN_G19 -to Bval[0]
 set_global_assignment -name SYSTEMVERILOG_FILE Multiplier.sv
 set_global_assignment -name SYSTEMVERILOG_FILE Lab5_TestBench.sv
 set_global_assignment -name SYSTEMVERILOG_FILE control_logic.sv
-set_global_assignment -name SYSTEMVERILOG_FILE ../lab4/ripple_adder/ninebit_adder.sv
-set_global_assignment -name SYSTEMVERILOG_FILE ../lab4/Synchronizers.sv
-set_global_assignment -name SYSTEMVERILOG_FILE ../lab4/HexDriver.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ninebit_adder.sv
+set_global_assignment -name SYSTEMVERILOG_FILE HexDriver.sv
 set_global_assignment -name SYSTEMVERILOG_FILE Reg_8.sv
+set_global_assignment -name SYSTEMVERILOG_FILE Synchronizers.sv
+set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
+set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
+set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH testbench -section_id eda_simulation
+set_global_assignment -name EDA_TEST_BENCH_NAME testbench -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id testbench
+set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "1000 s" -section_id testbench
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME testbench -section_id testbench
+set_global_assignment -name EDA_TEST_BENCH_FILE Lab5_TestBench.sv -section_id testbench
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
