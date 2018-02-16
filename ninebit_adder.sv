@@ -21,7 +21,7 @@ module ninebit_adder
 	four_bit_ra FRA0(.x(A[3 : 0]), .y(SubV[3 : 0]), .cin( M), .s(AxS[3 : 0]), .cout(C0));
 	four_bit_ra FRA1(.x(A[7 : 4]), .y(SubV[7 : 4]), .cin(C0), .s(AxS[7 : 4]), .cout(C1));
 	
-	assign X = (C1 | AxS[7]);
+	assign X = (C1);
 	
 	
 endmodule
