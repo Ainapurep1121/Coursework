@@ -13,7 +13,7 @@ module control_logic (input  logic Clk, Reset, LoadA, LoadB, Run, //change
 	//updates flip flop, current state is the only one
     always_ff @ (posedge Clk)  
     begin
-        if (Reset)
+        if (!Reset)
             curr_state <= Start;
         else 
             curr_state <= next_state;
@@ -29,7 +29,7 @@ module control_logic (input  logic Clk, Reset, LoadA, LoadB, Run, //change
 		  next_state  = curr_state;	//required because I haven't enumerated all possibilities below
         unique case (curr_state) 
 
-				Start: if (Run)
+				Start: if (!Run)
                        next_state = ClearA;
 				ClearA: begin  
 							  next_state = Add1;
@@ -118,7 +118,7 @@ module control_logic (input  logic Clk, Reset, LoadA, LoadB, Run, //change
 							  Sub = 0;
 							  Add = 0;
 						  end  
-				Done:      if (~Run) 
+				Done:      if (Run) 
                        next_state = Start;
 							  
         endcase

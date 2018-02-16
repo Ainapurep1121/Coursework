@@ -73,14 +73,14 @@ module Multiplier
             X = 1'b0;
 				Aval = A;
 				Bval = B;
-        end else if (Reset) begin
+        end else if (!Reset) begin
             // if reset is pressed, clear the adder's input registers
 				A = 8'h000;
 				B = 8'h000;
             X = 1'b0;
 				Aval = A;
 				Bval = B;
-        end else if (ClearA_LoadB) begin
+        end else if (!ClearA_LoadB) begin
             // if reset is pressed, clear the adder's input registers
             A = 8'h000;
             B = S;
@@ -96,7 +96,7 @@ module Multiplier
 				B = B	>> 1;
 				B[7] = A[0];
 				A = A >>> 1;
-				A[7] = X;
+				A[7] = Xout;
 				Aval = A;
 				Bval = B;
 		  end 
