@@ -19,8 +19,8 @@ logic [6:0] AhexL,
 				BhexU;
 				
 //Store Answers For Comparison
-logic [7:0] ans_A, ans_B;
-logic			ans_X;
+logic [7:0] ans_A1, ans_B1, ans_A2, ans_B2;
+logic			ans_X1, ans_X2;
 
 // A counter to count the instances where simulation results
 // do no match with expected results
@@ -46,53 +46,72 @@ end
 initial begin: TEST_VECTORS
 
 //Declare the solutions for comparison 
-ans_A = 8'h63; 
-ans_B = 8'hFE;
-ans_X = 1'b1;
+ans_A1 = 8'hFE; // -b * s ~ -59 * 7
+ans_B1 = 8'h63; 
+ans_X1 = 1'b1;
+ans_A2 = 8'h00; // b * s ~ 4 * 3
+ans_B2 = 8'h0C; 
+ans_X2 = 1'b0;
+Reset = 1;		// Toggle Rest
+ClearA_LoadB = 0;
+Run = 0;
+S = 8'h000;
+Aval = 8'h000;
+Bval = 8'h000;
 
 //Actual Simulation Test
-ClearA_LoadB 	= 0;    	 // Set to 0, before toggling
-S 				= 8'hC5;	 // Hex -59 = 1100 0101 -< Check
-ClearA_LoadB 	= 1;	    //Toggle ClrA_LdB
-ClearA_LoadB 	= 0;       
-S 				= 8'h07;  //Hex 07 = 0000 0111 -< check 
-Run 			= 1;
-Run 			= 0;
+#2 Reset = 0;
+#2 ClearA_LoadB 	= 1;    	 // Set to 0, before toggling
+#2 S 					= 8'hC5;	 // Hex -59 = 1100 0101 -< Check
+#2 ClearA_LoadB 	= 0;	    //Toggle ClrA_LdB      
+#3 S 					= 8'h07;  //Hex 07 = 0000 0111 -< check 
+#3 Run 				= 1;
+
+#3 Run 				= 0;
 
 //Store Results to check if computation worked. 
 //This chunk can be moved around!
 //Aval = blah
 //Bval = blah 
 
+#28 Reset = 0;
+#28 ClearA_LoadB 	= 1;    	 // Set to 0, before toggling
+#28 S 					= 8'h04;	 // Hex -59 = 1100 0101 -< Check
+#28 ClearA_LoadB 	= 0;	    //Toggle ClrA_LdB      
+#29 S 					= 8'h03;  //Hex 07 = 0000 0111 -< check 
+#29 Run 				= 1;
+
+#29 Run 				= 0;
+
 //Repeat Calculation Check
-#2 S 				= 9'h02;
-   Run 			= 1;
-#2	Run			= 0;
+//#5 S 				= 9'h02;
+//#5 Run 			= 1;
+//#6	Run			= 0;
 
 //Flipped operands Czech
-#5 Reset 	= 1;
-	Reset 	= 0;
-	S 			= 8'hC5;
-	ClearA_LoadB = 1;
-	ClearA_LoadB = 0;
-	S 			= 8'h07;
-#2 Run 		= 1;
-#2 Run 		= 0;
+//#22 Reset 	= 0;
+//#7	Reset 	= 1;
+//#7	S 			= 8'hC5;
+//#7	ClearA_LoadB = 0;
+//#7	ClearA_LoadB = 1;
+//#7	S 			= 8'h07;
+//#8 Run 		= 0;
+//#8 Run 		= 1;
 
 
 //Check if the compuation units worked as expected
 
-#22 if(Aval != ans_A)
-			ErrorCnt++;
-	 if(Bval != ans_B)
-			ErrorCnt++;
-	 if(X != ans_X)
-			ErrorCnt++;
-	 
-if(ErrorCnt == 0)
-	$display("Success!"); 
-else
-	$display("%d error(s) detected.", ErrorCnt);
+//#22 if(Aval != ans_A)
+//			ErrorCnt++;
+//	 if(Bval != ans_B)
+//			ErrorCnt++;
+//	 if(X != ans_X)
+//			ErrorCnt++;
+//	 
+//if(ErrorCnt == 0)
+//	$display("Success!"); 
+//else
+//	$display("%d error(s) detected.", ErrorCnt);
 
 end
 endmodule

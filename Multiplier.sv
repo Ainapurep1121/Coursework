@@ -35,7 +35,7 @@ module Multiplier
 	 
 	ninebit_adder 		addition_unit (
 							.A(A),
-							.S(S^Sub),
+							.S(S),
 							.M(Sub),
 							.AxS(Aout),
 							.X(Xout));
@@ -54,6 +54,11 @@ module Multiplier
 							.Shift_En(Shift),
 							.D(S));
 	control_logic		control_unit (
+							.Clk(Clk),
+  							.Reset(Reset),
+  							.LoadB(LoadB),
+  							.LoadA(LoadA),
+  							.Run(Run),
 							.Add(Add),
 							.Sub(Sub),
 							.Shift(Shift),
@@ -64,21 +69,29 @@ module Multiplier
         
         if (Clr_A) begin
             // if clear var is high, clear A
-            A <= 8'h000;
-            X <= 1'b0;
-        end else if (!Reset) begin
+            A = 8'h000;
+            X = 1'b0;
+				Aval = A;
+				Bval = B;
+        end else if (Reset) begin
             // if reset is pressed, clear the adder's input registers
-				A <= 8'h000;
-				B <= 8'h000;
-            X <= 1'b0;
-        end else if (!ClearA_LoadB) begin
+				A = 8'h000;
+				B = 8'h000;
+            X = 1'b0;
+				Aval = A;
+				Bval = B;
+        end else if (ClearA_LoadB) begin
             // if reset is pressed, clear the adder's input registers
-            A <= 8'h000;
-            B <= S;
-            X <= 1'b0;
+            A = 8'h000;
+            B = S;
+            X = 1'b0;
+				Aval = A;
+				Bval = B;
         end else if (Add && LSB) begin
-				A <= Aout[7:0]; 
-				X <= Xout;
+				A = Aout[7:0]; 
+				X = Xout;
+				Aval = A;
+				Bval = B;
 		  end else if (Shift) begin
 				B = B	>> 1;
 				B[7] = A[0];
@@ -105,7 +118,6 @@ module Multiplier
                         .In0(B[3:0]),
                         .Out0(BhexL_comb) );
 								
-	 //When you extend to 8-bits, you will need more HEX drivers to view upper nibble of registers, for now set to 0
 	 HexDriver        HexAU (
                         .In0(A[7:4]),
                         .Out0(AhexU_comb) );	
