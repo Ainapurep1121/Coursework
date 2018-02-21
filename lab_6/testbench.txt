@@ -1,0 +1,85 @@
+
+
+module testbench();
+
+
+timeunit 10ns; //Half Clock Cycle
+
+timeprecision 1ns;
+
+//DECLARE ALL VARIABLES
+
+logic Clk = 0;
+logic Reset, Run, Continue;
+logic [15:0] S;
+logic [6:0] AhexL,
+			AhexU,
+			BhexL,
+			BhexU;
+
+// Instantiating the DUT
+// Make sure the module and signal names match with those in your design
+Multiplier multiplier0(.*);	
+
+//Toggle clock
+//#1 means wait for a delay of 1 timeunit
+always begin : CLOCK_GENERATION
+#1 Clk = ~Clk;
+end
+
+initial begin: CLOCK_INITIALIZATION
+	Clk = 0;
+end
+
+//Testing begins here
+//Initial block is not synthesizable
+
+initial begin: TEST_VECTORS
+
+Reset = 0;
+S = 15h'0000;
+
+//Actual Simulation test 
+
+   Run = 1;
+#1 Run = 0;
+
+//1
+#2 Continue = 1;
+#2 Continue = 0;
+//2
+#2 Continue = 1;
+#2 Continue = 0;
+//3
+#2 Continue = 1;
+#2 Continue = 0;
+//4
+#2 Continue = 1;
+#2 Continue = 0;
+//5
+#2 Continue = 1;
+#2 Continue = 0;
+//6
+#2 Continue = 1;
+#2 Continue = 0;
+//7
+#2 Continue = 1;
+#2 Continue = 0;
+//8
+#2 Continue = 1;
+#2 Continue = 0;
+//9
+#2 Continue = 1;
+#2 Continue = 0;
+//10
+#2 Continue = 1;
+#2 Continue = 0;
+
+#5 Reset = 1;
+
+
+endmodule;
+
+
+
+
