@@ -167,3 +167,114 @@ module Address_ALU (input offset, //ALU near PC that computes the next PC value 
 						  
 endmodule 
 
+//MY WORK 
+
+
+module nzp_REG(input[2:0] CC_Bus,
+					input Clk, Reset,
+					output[2:0]CC_nxt); 				
+logic reg_arry[3]; //array of 3 1 bit registers
+
+always_ff @ (posedge Clk)
+begin
+	if(Reset) begin //Reset data
+	for(integer i = 0; i < 3; i = i + 1)
+		begin
+			reg_array[i] <= 1'b0;
+			end
+	end
+	else if(CC_Bus == n & LD_CC == 1)//100
+		begin
+		reg_array[0]  <=  1'b1;
+		reg_array[1]  <=  1'b0;
+		reg_array[2]  <=  1'b0;
+		assign CC_nxt = n;
+	end
+	
+	else if(CC_Bus == z & LD_CC == 1) 	//010
+		begin
+		reg_array[0]  <=  1'b0;
+		reg_array[1]  <=  1'b1;
+		reg_array[2]  <=  1'b0;
+		assign CC_nxt = z;
+	end
+	
+	else if (CC_Bus == p & LD_CC == 1)          //001
+		begin
+		reg_array[0]  <=  1'b0;
+		reg_array[1]  <=  1'b1;
+		reg_array[2]  <=  1'b0;
+		assign CC_nxt = p;
+	end
+	
+	else //LD_CC is not High
+		begin
+		reg_array[0]  <=  reg_array[0];
+		reg_array[1]  <=  reg_array[1];
+		reg_array[2]  <=  reg_array[2];
+	end
+end 
+
+endmodule
+ 
+module BEN_REG (input BEN_IN,
+					 input Clk, Reset,
+					 input LD_BEN,
+					 output BEN_OUT);
+					 
+always_ff @ (posedge Clk) begin
+
+if(Reset)
+	begin
+	BEN_IN <= 0;
+	end
+else if (LD_BEN)
+	begin
+	BEN_OUT <= BEN_IN;
+	end
+else
+	begin
+	BEN_IN <= BEN_IN;
+	end
+end
+endmodule
+
+module CC_unit (input [15:0]Bus_Mux, 
+			  input [15:0]IR,
+			  input LD_BEN,
+			  output CONTROL_IN);
+//Internal Logic			  
+logic[2:0] CC_calc;
+logic BEN_IN; //Input going into BEN Register
+
+always_comb begin
+//Check and assign CC_calc
+if(Bus_Mux[15] == 1)
+	begin
+	CC_calc <= n;
+	end
+else if(Bus_Mux[15:0] == 0)
+	begin
+	CC_calc <= z;
+	end
+else
+	begin
+	CC_calc <= p;
+	end
+end			  
+
+nzp_REG arr(.Clk(),.Reset(),.CC_Bus(CC_calc),.CC_nxt())
+
+//Use values from IR 11:9 to check if we have a match to BR
+always_comb 
+begin
+if(IR[11:9] && CC_nxt) 
+assign BEN_IN = 1;
+else
+BEN_IN = 0;
+end
+
+BEN_REG B(.Clk(),.Reset(),.BEN_IN(),.LD_BEN(), .BEN_OUT(CONTROL_IN)); //May not be right since we have BEN_IN Declared twice 
+
+endmodule 
+
