@@ -23,7 +23,7 @@ endmodule
 
 module PC_Mux (input logic [15:0] PC_curr,
 					input logic [15:0] PC_inc,
-					input logic [15:0] PC_offset,
+					input logic [15:0] ADDR_out,
 					input logic [15:0] Bus,
 					input logic [1:0] PCMUX,
 					output logic [15:0] PC_Mux_out);
@@ -40,7 +40,7 @@ module PC_Mux (input logic [15:0] PC_curr,
 			 end
 			 
 			 else if(PCMUX == 2) begin
-					PC_Mux_out <= PC_offset;
+					PC_Mux_out <= ADDR_out;
 			 end
 			 
 			 else begin
@@ -160,38 +160,40 @@ module Bus_Mux (input logic  GatePC,
 
 endmodule 
 
-module Address_ALU (input SR2_Mux_out, //ALU near PC that computes the next PC value based on current instruction
-						  input inputB,
-						  input ALUK,
-						  output ALU_out); //flag whether should comput using offet or just be PC + 1
+module Address_ALU (input logic [15:0] SR2_Mux_out, //ALU near PC that computes the next PC value based on current instruction
+						  input logic [15:0] SR1_out,
+						  input logic [1:0] ALUK,
+						  output logic [15:0] ALU_out); //flag whether should comput using offet or just be PC + 1
 						  
 						  
 		always_comb
 		begin 
 			 if(ALUK == 0) begin
-					ALU_out = inputA + inputB;
+					ALU_out = SR1_out + SR2_Mux_out;
 			 end
 		 
 			 else if(ALUK == 1) begin
-					ALU_out = inputA & inputB;
+					ALU_out = SR1_out & SR2_Mux_out;
 			 end
 			 
 			 else if(ALUK == 2) begin
-					ALU_out = !inputA;
+					ALU_out = !SR1_out;
 			 end
 			 
 			 else if(ALUK == 3) begin
-					ALU_out = inputA;
+					ALU_out = SR1_out;
 			 end
 			 
 			 else begin
-					ALU_out <= inputA;
+					ALU_out <= SR1_out;
 			 end 
 		end
 endmodule 
 
 module Reg_File (input logic [2:0] SR2,
-					  input logic LD.REG,
+					  input Clk,
+					  input Reset,
+					  input logic LD_REG,
 					  input logic [15:0] BUS_val,
 					  input logic [2:0] SR1_Mux_out,
 					  input logic [2:0] DR_Mux_out,
@@ -199,14 +201,9 @@ module Reg_File (input logic [2:0] SR2,
 					  output logic [15:0] SR2_out);
 
 	logic [15:0] reg_array [8];
-	logic SR1_val, SR2_val;
 	
-	assign SR1_val = SR1_Mux_out[0] + 2*SR1_Mux_out[1] + 4*SR1_Mux_out[2];
-	assign SR2_val = SR2[0] + 2*SR2[1] + 4*SR2[2];
-	assign DR_val = DR_Mux_out[0] + 2*DR_Mux_out[1] + 4*DR_Mux_out[2];
-	
-	assign SR1_out = reg_array[SR1_val];
-	assign SR2_out = reg_array[SR2_val];
+	assign SR1_out = reg_array[SR1_Mux_out];
+	assign SR2_out = reg_array[SR2];
 	
 	always_ff @ (posedge Clk)
 	begin
@@ -217,18 +214,16 @@ module Reg_File (input logic [2:0] SR2,
 			end
 		end
 	
-		else if (LD.REG) begin
-				reg_array[DR] <= BUS_val;
+		else if (LD_REG) begin
+				reg_array[DR_Mux_out] <= BUS_val;
 		end
 		else begin
-				SR1_val <= SR1_val;
-				SR2_val <= SR2_val;
 		end
 	end
 		
 endmodule
 
-module SR1_Mux (input logic SR1MUX,
+module SR1_mux (input logic SR1MUX,
 					 input logic [2:0] IR11_9,
 					 input logic [2:0] IR8_6,
 					 output logic [2:0] SR1_Mux_out);
@@ -249,9 +244,9 @@ module SR1_Mux (input logic SR1MUX,
 
 endmodule
 
-module SR2_Mux (input logic SR2MUX,
+module SR2_mux (input logic SR2MUX,
 					 input logic [15:0] IR,
-					 input logic [15:0] SR2_out
+					 input logic [15:0] SR2_out,
 					 output logic [15:0] SR2_Mux_out);
 					 
 	logic [15:0] IR4;
@@ -274,7 +269,7 @@ module SR2_Mux (input logic SR2MUX,
 
 endmodule
 
-module DR_Mux (input logic DRMUX,
+module DR_mux (input logic DRMUX,
 					 input logic [2:0] IR11_9,
 					 output logic [2:0] DR_Mux_out);
 					 
@@ -296,7 +291,7 @@ module DR_Mux (input logic DRMUX,
 endmodule
 
 module ADDR1_mux (input logic ADDR1MUX,
-					   input logic [15:0] PC_curr
+					   input logic [15:0] PC_curr,
 						input logic [15:0] SR1_out,
 					   output logic [15:0] ADDR1_mux_out);
 					 
@@ -319,7 +314,7 @@ endmodule
 
 module ADDR2_mux (input logic [1:0] ADDR2MUX,
 						input logic [15:0] IR,
-					   output logic [2:0] ADDR2_mux_out);
+					   output logic [15:0] ADDR2_mux_out);
 
 	logic [15:0] IR5, IR8, IR10;
 	assign IR5 = {{10{IR[5]}},IR[5:0]};
@@ -350,4 +345,123 @@ module ADDR2_mux (input logic [1:0] ADDR2MUX,
 		end
 
 endmodule
+
+module ADDR_ADDER(input logic [15:0] ADDR1_mux_out,
+						input logic [15:0] ADDR2_mux_out,
+						output logic [15:0] ADDR_out);
+						
+	always_comb begin
+		ADDR_out = ADDR1_mux_out + ADDR2_mux_out;
+	end 
+endmodule
+
+//MY WORK 
+/*
+3 Bit register that maintains or modifies CC
+4 cases, neg, zero, pos, LD_CC is Low
+*/
+module nzp_REG(input[2:0] CC_Bus,
+					input Clk, Reset,LD_CC,
+					output[2:0]CC_nxt);
+
+	always_ff @ (posedge Clk)
+		begin
+			if(Reset) begin 				 //Reset data
+				CC_nxt <= 0;
+		end
+		else if(CC_Bus == n & LD_CC == 1)    //100
+			begin
+				CC_nxt <= n;
+		end
+	
+		else if(CC_Bus == z & LD_CC == 1) 	//010
+			begin
+				CC_nxt <= z;
+		end
+		
+		else if (CC_Bus == p & LD_CC == 1)  //001
+			begin
+				CC_nxt <= p;
+		end
+	
+		else //LD_CC is not High
+			begin
+			CC_nxt[0] <= CC_nxt[0];
+			CC_nxt[1] <= CC_nxt[1];
+			CC_nxt[2] <= CC_nxt[2];
+		end
+	end 
+
+endmodule
+
+/*
+Reset -> clear BEN_OUT
+is LD_BEN = 1 -> Out <= In
+is LD_BEN = 0 -> Out <= Out 
+*/ 
+module BEN_REG (input BEN_IN,
+					 input Clk, Reset,
+					 input LD_BEN,
+					 output BEN_OUT);
+
+	always_ff @ (posedge Clk) begin
+		if(Reset)
+			begin
+			BEN_OUT <= 0;
+			end
+		else if (LD_BEN)
+			begin
+			BEN_OUT <= BEN_IN;
+			end
+		else
+			begin
+			BEN_OUT <= BEN_OUT;
+			end
+	end
+endmodule
+
+module CC (input logic [15:0]Bus_Mux, 
+			  input logic [15:0]IR,
+			  input logic Clk,
+			  input logic LD_BEN,
+			  output logic CONTROL_IN);
+	//Internal Logic			  
+	logic[2:0] CC_Bus; 
+	logic BEN_INT; // BEN Input Temp
+	logic [2:0] CC_nxt;
+
+	always_comb begin
+		//Check and assign CC_calc
+		if(Bus_Mux[15] == 1)
+			begin
+			CC_Bus <= n; 
+			end
+		else if(Bus_Mux[15:0] == 0)
+			begin
+			CC_Bus <= z;
+			end
+		else
+			begin
+			CC_Bus <= p;
+			end
+	end			   
+
+nzp_REG arr(.Clk(),.Reset(),.LD_CC(),.CC_Bus(CC_Bus),.CC_nxt(CC_nxt));
+
+//Use values from IR 11:9 to check if we have a match to BR
+	always_ff @ (posedge Clk) begin
+		if(IR[11:9] == CC_nxt) begin 
+			BEN_INT <= 1;
+		end 
+		
+		else begin 
+			BEN_INT <= 0;
+		end
+	end
+
+//BEN_OUT is the value that we take into Control 
+BEN_REG B(.Clk(),.Reset(),.BEN_IN(BEN_INT),.LD_BEN(), .BEN_OUT(CONTROL_IN));
+
+endmodule 
+
 

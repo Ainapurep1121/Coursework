@@ -55,7 +55,7 @@ module ISDU (   input logic         Clk,
 									Mem_WE
 				);
 
-	enum logic [3:0] {  Halted, 
+	enum logic [4:0] {  Halted, 
 						PauseIR1, 
 						PauseIR2, 
 						S_18, 
@@ -205,9 +205,16 @@ module ISDU (   input logic         Clk,
 				Next_state = S_18;
 			
 			S_00:				//BR
+				case (BEN)
+					1'b0 : 
+						Next_state = S_18;
+					1'b1 : 
+						Next_state = S_22;
+				endcase
 			
 			S_22:
-			
+				Next_state = S_22;
+
 			S_12:				//JMP
 				Next_state = S_18;	
 				
@@ -255,6 +262,7 @@ module ISDU (   input logic         Clk,
 					GateALU = 1'b1;
 					DRMUX = 1'b0;
 					LD_REG = 1'b1;
+					LD_CC = 1'b1;
 					// incomplete...complete??
 				end
 
@@ -267,6 +275,7 @@ module ISDU (   input logic         Clk,
 					GateALU = 1'b1;
 					DRMUX = 1'b0;
 					LD_REG = 1'b1;
+					LD_CC = 1'b1;
 				end
 				
 			S_09:				//NOT
@@ -276,35 +285,91 @@ module ISDU (   input logic         Clk,
 					GateALU = 1'b1;
 					DRMUX = 1'b0;
 					LD_REG = 1'b1;
+					LD_CC = 1'b1;
 				end
 			
 			S_06:				//LDR
+				begin 
+					SR1MUX = 1'b1;
+					ADDR1MUX = 1'b1;
+					ADDR2MUX = 2'b10;
+					GateMARMUX = 1'b1;
+					LD_MAR = 1'b1;
+				end
 			
 			S_25_1:
+				Mem_OE = 1'b0;
 			
-			S_25_2:
+			S_25_2:  begin
+					Mem_OE = 1'b0;
+					LD_MDR = 1'b1;
+				end
 			
-			S_27:
+			S_27: 
+				begin
+					GateMDR = 1'b1;
+					DRMUX = 1'b0;
+					LD_REG = 1'b1;
+					LD_CC = 1'b1;
+				end
 				
 			S_07:				//STR 
+				begin 
+					SR1MUX = 1'b1;
+					ADDR1MUX = 1'b1;
+					ADDR2MUX = 2'b10;
+					GateMARMUX = 1'b1;
+					LD_MAR = 1'b1;
+				end
 				
 			S_23:
+				begin
+					SR1MUX = 1'b0;
+					ALUK = 2'b11;
+					Mem_OE = 1'b1;
+					LD_MDR = 1'b1;
+				end
 				
 			S_16_1:
+				Mem_WE = 1'b1;
 			
 			S_16_2:
-			
-			S_00:				//BR
+				Mem_WE = 1'b1;
+				
+			S_00:	;			//BR
 			
 			S_22:
+				begin
+					ADDR2MUX = 2'b01;
+					ADDR1MUX = 1'b0;
+					PCMUX = 2'b10;
+					LD_PC = 1'b1;
+				end
 			
 			S_12:				//JMP
+				begin
+					SR1MUX = 1'b1;
+					ADDR1MUX = 1'b1;
+					ADDR2MUX = 2'b00;
+					PCMUX = 2'b10;
+					LD_PC = 1'b1;
+				end
 				
 			S_04:				//JSR
+				begin 
+					GatePC = 1'b1;
+					DRMUX = 1'b1;
+					LD_REG = 1'b1;
+				end
 			
 			S_21:
-			
-			
+				begin
+					ADDR1MUX = 1'b0;
+					ADDR2MUX = 2'b11;
+					PCMUX = 2'b10;
+					LD_PC = 1'b1;
+				end
+				
 			default : ;
 		endcase
 	end 

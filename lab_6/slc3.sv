@@ -121,6 +121,7 @@ datapath data1(.Clk(Clk),
 			 .MAR(MAR), 
 			 .MDR(MDR), 
 			 .IR(IR), 
-			 .PC(PC));
+			 .PC(PC),
+			 .BEN(BEN));
 
 endmodule 
