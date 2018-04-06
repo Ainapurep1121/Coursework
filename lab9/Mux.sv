@@ -9,17 +9,17 @@ output logic [127:0] MuxOut
 
 always_comb begin
 
-if(Select == 0)      begin
+if(Select == 2'b00)      begin
 
 MuxOut = InvShiftRows;
 
 		end
-else if (Select == 1) begin
+else if (Select == 2'b01) begin
 
 MuxOut = InvSubBytes;
 		end
 
-else if (Select == 2) begin
+else if (Select == 2'b10) begin
 
 MuxOut = AddRoundKey;
 		end
