@@ -10,14 +10,14 @@ output logic [127:0]Data_Out
 always_ff @ (posedge CLK) begin
 
 if(Reset) begin
-	Data_Out = 128'h0;
+	Data_Out <= 128'h0;
 end
 
 else if(Load) begin
-	Data_Out = Data_In;
+	Data_Out <= Data_In;
 end
 else begin
-    Data_Out = Data_Out; 
+    Data_Out <= Data_Out; 
 end 
 
 end
